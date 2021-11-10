@@ -1,12 +1,11 @@
-import style from "../../../pages/Profile/Profile.module.scss";
+import style from "../../pages/Profile/Profile.module.scss";
 import React from "react";
-import {useAppDispatch, useAppSelector} from "../../../hooks/redux";
-import {setPhotoProfile} from "../../../redux/profile-reducer";
-import {IProfileUserProps} from "../../../pages/Profile";
+import {useAppDispatch, useAppSelector} from "../../hooks/redux";
+import {setPhotoProfile} from "../../redux/profile-reducer";
+import {IProfileUserProps} from "../../pages/Profile";
 
 
-
-export const ProfilePhoto:React.FC<IProfileUserProps> = ({id}) => {
+export const ProfilePhoto: React.FC<IProfileUserProps> = ({id}) => {
     const profile = useAppSelector(state => state.profileSlice)
 
     const dispatch = useAppDispatch()
@@ -25,9 +24,9 @@ export const ProfilePhoto:React.FC<IProfileUserProps> = ({id}) => {
             <div className={style.profile__img}>
                 <img src={profile.user.photos.large || '/images/avatar_icon.svg'} alt=""/>
             </div>
-            <div>
+            {id && <div>
                 <b>Обновить фотографию: </b><input type={"file"} onChange={handleChangeFile}/>
-            </div>
+            </div>}
         </>
     )
 }

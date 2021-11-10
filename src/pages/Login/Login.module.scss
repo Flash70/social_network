@@ -1,0 +1,19 @@
+.form {
+  input{
+    text-align: center;
+    border-radius: 20px;
+  }
+}
+
+.remember {
+  margin: 5px 0 10px;
+}
+
+.error {
+  margin: 0 auto;
+  width: 170px;
+  border: red 1px solid;
+  span {
+    color: red;
+  }
+}

@@ -1,10 +1,11 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit"
 import {authAPI} from "../api/autn_api"
 import {AppDispatch} from "./store";
-import {objOutMe} from "../type/interface";
+import {IPhotosUser, ILoginMe, IProfileUser} from "../type/interface";
 import {ResultCode} from "../api/api";
 import {securityAPI, securityType} from "../api/security_api";
 import {stopSubmit} from "redux-form";
+import {profileAPI} from "../api/profile_api";
 
 
 export interface initialStateInterface {
@@ -17,6 +18,7 @@ export interface initialStateInterface {
     error?: string
     messages: Array<string>
     captcha?: string
+    photos?: IPhotosUser
 }
 
 const initialState: initialStateInterface = {
@@ -28,9 +30,12 @@ const initialState: initialStateInterface = {
     isAuth: false,
     error: '',
     messages: [],
-    captcha: ""
+    captcha: "",
+    photos: {
+        small: null,
+        large: null
+    }
 }
-
 
 
 const authMeSlice = createSlice({
@@ -41,7 +46,7 @@ const authMeSlice = createSlice({
             state.data = action.payload.data
             state.isAuth = true
         },
-        getAuthMeError (state, action: PayloadAction<Array<string>>) {
+        getAuthMeError(state, action: PayloadAction<Array<string>>) {
             state.isAuth = false
             state.messages = action.payload
         },
@@ -51,35 +56,43 @@ const authMeSlice = createSlice({
         getOutLogin(state) {
             state.data = {id: null, email: null, login: null,}
             state.isAuth = false
+        },
+        getPhotosUsers(state, action: PayloadAction<IProfileUser>) {
+            state.photos = action.payload.photos
         }
     }
 })
 
-const {getAuthMe, setSecurity, getOutLogin, getAuthMeError} = authMeSlice.actions
+const {getAuthMe, setSecurity, getOutLogin, getAuthMeError, getPhotosUsers} = authMeSlice.actions
 
 
 export const getAuthMeServer = () => async (dispatch: AppDispatch) => {
     try {
         const res = await authAPI.getMe()
-        if (res.resultCode === ResultCode.Success){
-            dispatch(getAuthMe(res))
-        }else if (res.resultCode === ResultCode.Error) {
-            dispatch(getAuthMeError(res.messages))
+        if (res.data.id != null) {
+            const data = await profileAPI.getProfile(res.data.id)
+            dispatch(getPhotosUsers(data))
+            if (res.resultCode === ResultCode.Success) {
+                dispatch(getAuthMe(res))
+            } else if (res.resultCode === ResultCode.Error) {
+                dispatch(getAuthMeError(res.messages))
+            }
         }
+
     } catch (error) {
         alert("Шибка при аутентификации");
         console.error(error);
     }
 }
 
-export const setAuthMeLogin = (obj: objOutMe) => async (dispatch: AppDispatch) => {
+export const setAuthMeLogin = (obj: ILoginMe) => async (dispatch: AppDispatch) => {
     try {
         const res = await authAPI.loginMe(obj)
         if (res.resultCode === ResultCode.Success) {
             dispatch(getAuthMeServer())
-        } else if (res.resultCode === ResultCode.captcha){
-                const res = await securityAPI.security()
-                dispatch(setSecurity(res))
+        } else if (res.resultCode === ResultCode.captcha) {
+            const res = await securityAPI.security()
+            dispatch(setSecurity(res))
         } else if (res.resultCode === ResultCode.Error) {
             const messages = res.messages.length > 0 ? res.messages[0] : "Не правильный Email или пароль"
             dispatch(stopSubmit("login", {_error: messages}))

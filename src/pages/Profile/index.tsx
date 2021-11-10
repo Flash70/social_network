@@ -1,53 +1,71 @@
-import React from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {getProfileUser} from "../../redux/profile";
-import style from "./Profile.module.scss";
+import React from "react"
+import {getProfileUser, getStatusProfile, setProfileUser} from "../../redux/profile-reducer"
+import style from "./Profile.module.scss"
+import {useAppDispatch, useAppSelector} from "../../hooks/redux"
+import {IProfileUser} from "../../type/interface"
+import {ProfileDataForm} from "../../components/ProfileData/ProfileForm/ProfileForm"
+import {ProfileData} from "../../components/ProfileData/ProfileData"
+import {useParams} from "react-router-dom";
+import {ProfilePhoto} from "../../components/ProfileData/ProfilePhoto";
+import {ProfileStatus} from "../../components/ProfileData/ProfileStatus";
+import {PreLoader} from "../../components/common/PreLoader/PreLoader";
+
+export interface UserItemUserParams {
+    id: string
+}
+
+export interface IProfileUserProps {
+    id?: number | null
+}
 
 
-export const ProfileUser = React.memo(({id}) => {
+export const ProfileUser: React.FC<IProfileUserProps> = React.memo(({id}) => {
+        const params = useParams<UserItemUserParams>()
 
-        const dispatch = useDispatch();
+        const profile = useAppSelector(state => state.profileSlice)
+        const [editorProfile, setEditorProfile] = React.useState(false)
+        const [status, setStatus] = React.useState(profile.status)
+
+        const dispatch = useAppDispatch()
+
         React.useEffect(() => {
-            id != null && dispatch(getProfileUser(id));
-        }, [id])
+            if (id != null) {
+                dispatch(getProfileUser(id))
+                dispatch(getStatusProfile(id))
+            } else {
+                dispatch(getProfileUser(Number(params.id)))
+                dispatch(getStatusProfile(Number(params.id)))
+            }
+        }, [id, params.id])
 
-        const profile = useSelector(state => state.profileReducer);
+        React.useEffect(() => {
+            setStatus(profile.status)
+        }, [profile.status])
 
+        const editorMode = () => {
+            setEditorProfile(!editorProfile)
+        }
 
+        const onSubmit = (formData: IProfileUser) => {
+            dispatch(setProfileUser(formData)).then(
+                () => {
+                    setEditorProfile(!editorProfile)
+                }
+            )
+        }
+        if (profile.isLoading) {
+            return <PreLoader/>
+        }
         return (
             <div className={style.profile}>
-                <div className={style.profile__img}>
-                    <img src={profile.photos.large || '/images/avatar_icon.svg'} alt=""/>
-                </div>
-                <div><h1 className={style.title}>{profile.fullName}</h1></div>
-                <div>
-                    <div>
-                        <b>Обо мне:</b>
-                    </div>
-                    <span>{profile.aboutMe || "Напишите о себе!"}</span>
-                </div>
-                {profile.lookingForAJob != null &&
-                <div className={style.job}>
-                    <div><b>В поиске работы: {profile.lookingForAJob ? "Да" : "Нет"}</b></div>
-                    <div>
-                        <div><b>Описание будующей работы:</b></div>
-                        <span>{profile.lookingForAJobDescription}</span>
-                    </div>
-                </div>
-                }
-                <div className={style.contact}>
-                    <div><h4>Контакты:</h4></div>
-                    <div><b>Facebook: </b><span> {profile.contacts.facebook}</span></div>
-                    <div><b>Website: </b><span>{profile.contacts.website}</span></div>
-                    <div><b>VK: </b><span>{profile.contacts.vk}</span></div>
-                    <div><b>Twitter: </b><span>{profile.contacts.twitter}</span></div>
-                    <div><b>Instagram: </b><span>{profile.contacts.instagram}</span></div>
-                    <div><b>YouTube: </b><span>{profile.contacts.youtube}</span></div>
-                    <div><b>GitHub: </b><span>{profile.contacts.github}</span></div>
-                    <div><b>MainLink: </b><span>{profile.contacts.mainLink}</span></div>
-
-                </div>
+                <ProfilePhoto id={id}/>
+                <ProfileStatus id={id} status={status} setStatus={setStatus}/>
+                {!editorProfile ? <ProfileData editorMode={editorMode} id={id} profile={profile.user}/> :
+                    <ProfileDataForm onSubmit={onSubmit} initialValues={profile.user} profile={profile.user}/>}
             </div>
         )
     }
-);
+)
+
+
+

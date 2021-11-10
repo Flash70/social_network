@@ -1,0 +1,33 @@
+.profile {
+  text-align: left;
+  margin: 10px;
+  .profile__img {
+
+    img{
+      width: 300px;
+      height: 300px;
+      border-radius: 200px;
+      border: 2px solid #000;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+    }
+  }
+  .status {
+    width: 300px;
+    border: darkgray 1px solid;
+    margin: 10px 0;
+  }
+  .title {
+    //text-transform: uppercase;
+  }
+  span {
+    margin: 0 auto;
+  }
+  .job {
+    padding: 10px 0;
+  }
+  .contact {
+    div {
+      padding: 5px 0;
+    }
+  }
+}

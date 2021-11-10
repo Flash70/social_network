@@ -1,14 +1,13 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {AppDispatch} from "./store";
-import {authAPI} from "../api/autn_api";
-import {getAuthMeServer} from "./auth";
+import {getAuthMeServer} from "./auth-reducer";
 
 
-interface initialState {
+interface IInitialState {
     initialized: boolean
 }
 
-let initialState: initialState = {
+const initialState: IInitialState = {
     initialized: false
 };
 
