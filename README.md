@@ -1,3 +1,24 @@
+## Stack:
+
+  * TypeScript
+  
+  * ReactJS (useState, useEffect)
+  
+  * Redux-Toolkit
+  
+  * React Router
+  
+  * Axios
+  
+  * Redux-Form
+
+### Логин и пароль для входа:
+
+t.serv3r@yandex.ru
+
+123456789
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
